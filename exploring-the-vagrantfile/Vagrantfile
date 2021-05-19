@@ -1,0 +1,28 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.define "web-server"
+  config.vm.hostname = "web-server"
+  config.vm.box = "bento/ubuntu-16.04"
+  config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+
+  # Argument 1: path on the host to the actual folder.
+  # Argument 2: path on the guest to mount the folder.
+  config.vm.synced_folder "./html/", "/var/www/html/"
+  
+  config.vm.provider "virtualbox" do |vb|
+    vb.name = "web-server"
+    vb.gui = false
+    vb.memory = "2048"
+  end
+
+  config.vm.provision "shell", inline: <<-SHELL
+    apt-get update
+    apt-get install -y apache2
+  SHELL
+
+  config.vm.provision "shell", run: "always", inline: <<-SHELL
+    echo "Hello from the Vagrantfile"
+  SHELL
+end
